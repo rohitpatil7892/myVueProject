@@ -27,31 +27,57 @@
             </tr>
         </tbody>
     </table>
+    <paginate :page-count="pagesSize" :page-range="3" :margin-pages="2" :click-handler="clickCallback" :prev-text="'Prev'"
+        :next-text="'Next'" :container-class="'pagination'" :page-class="'page-item'">
+    </paginate>
 </template>
 <script>
 /* eslint-disable */
-import axios from "axios";
 import addTutorial from "./addTutorial.vue";
+
+import Paginate from "vuejs-paginate-next";
+
+import service from "../service/serviceRoutes.js";
 
 
 
 export default {
     name: "allTutorials",
     components: {
+        paginate: Paginate,
         addTutorial
     },
     data() {
         return {
-            tutorials: []
+            tutorials: [],
+            pageNum: 0,
+            size: 4,
+            page: 10,
+            filterTitle: "",
+            pagesSize : 0
+        }
+    },
+
+    methods: {
+        async clickCallback(pageNum1) {
+            this.pageNum = pageNum1 - 1;
+            let allTutorials = await service.getAllTutorials(this.pageNum, this.size)
+            this.tutorials = allTutorials.tutorials
         }
     },
     async mounted() {
-        let allTutorials = await axios.get('http://localhost:3000/api/tutorials');
-        console.log(allTutorials);
-        if (allTutorials.status = 200) {
-            this.tutorials = allTutorials.data.
-        }
+        let allTutorials = await service.getAllTutorials(0, 4)
+        this.tutorials = allTutorials.tutorials
+        this.pagesSize = allTutorials.totalPages
     }
 }
 </script>
-<style></style>
+<style>
+/* Adopt bootstrap pagination stylesheet. */
+@import "https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css";
+
+/* Write your own CSS for pagination */
+.pagination {}
+
+.page-item {}
+</style>
